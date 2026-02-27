@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Glass Calculator</title>
+    <style>
+        :root {
+            --bg-color: #e0e5ec;
+            --calc-bg: rgba(255, 255, 255, 0.2);
+            --text-color: #333;
+            --shadow: 9px 9px 16px rgb(163,177,198,0.6), -9px -9px 16px rgba(255,255,255, 0.5);
+            --btn-bg: #e0e5ec;
+            --accent: #4d7cff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1d212b;
+            --calc-bg: rgba(255, 255, 255, 0.05);
+            --text-color: #efefef;
+            --shadow: 5px 5px 15px #14171f, -5px -5px 15px #262b37;
+            --btn-bg: #242933;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        .calculator {
+            background: var(--calc-bg);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 30px;
+            box-shadow: var(--shadow);
+            width: 320px;
+        }
+
+        .display {
+            width: 100%;
+            height: 80px;
+            background: none;
+            border: none;
+            outline: none;
+            text-align: right;
+            padding: 10px 20px;
+            font-size: 2.5rem;
+            color: var(--text-color);
+            margin-bottom: 20px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        button {
+            padding: 20px;
+            border-radius: 15px;
+            border: none;
+            outline: none;
+            background: var(--btn-bg);
+            color: var(--text-color);
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.2s ease;
+        }
+
+        button:active {
+            box-shadow: inset 4px 4px 6px rgba(0,0,0,0.1), inset -4px -4px 6px rgba(255,255,255,0.1);
+            transform: scale(0.95);
+        }
+
+        .operator { color: var(--accent); }
+        .equals { 
+            background: var(--accent); 
+            color: white; 
+            grid-column: span 2;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            background: var(--btn-bg);
+            color: var(--text-color);
+            box-shadow: var(--shadow);
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="theme-toggle" onclick="toggleTheme()">🌓 Toggle Mode</button>
+
+    <div class="calculator">
+        <input type="text" class="display" id="screen" disabled placeholder="0">
+        <div class="buttons">
+            <button onclick="clearScreen()" class="operator">C</button>
+            <button onclick="deleteChar()" class="operator">DEL</button>
+            <button onclick="appendToScreen('%')" class="operator">%</button>
+            <button onclick="appendToScreen('/')" class="operator">/</button>
+            
+            <button onclick="appendToScreen('7')">7</button>
+            <button onclick="appendToScreen('8')">8</button>
+            <button onclick="appendToScreen('9')">9</button>
+            <button onclick="appendToScreen('*')" class="operator">×</button>
+            
+            <button onclick="appendToScreen('4')">4</button>
+            <button onclick="appendToScreen('5')">5</button>
+            <button onclick="appendToScreen('6')">6</button>
+            <button onclick="appendToScreen('-')" class="operator">-</button>
+            
+            <button onclick="appendToScreen('1')">1</button>
+            <button onclick="appendToScreen('2')">2</button>
+            <button onclick="appendToScreen('3')">3</button>
+            <button onclick="appendToScreen('+')" class="operator">+</button>
+            
+            <button onclick="appendToScreen('0')">0</button>
+            <button onclick="appendToScreen('.')">.</button>
+            <button onclick="calculate()" class="equals">=</button>
+        </div>
+    </div>
+
+    <script>
+        const screen = document.getElementById('screen');
+
+        function appendToScreen(value) {
+            if (screen.value === 'Error') screen.value = '';
+            screen.value += value;
+        }
+
+        function clearScreen() {
+            screen.value = '';
+        }
+
+        function deleteChar() {
+            screen.value = screen.value.slice(0, -1);
+        }
+
+        function calculate() {
+            try {
+                // Using Function instead of eval for a slightly safer approach
+                screen.value = new Function('return ' + screen.value)();
+            } catch (e) {
+                screen.value = 'Error';
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+            }
+        }
+
+        // Add keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= 0 && e.key <= 9) appendToScreen(e.key);
+            if (['+', '-', '*', '/', '%', '.'].includes(e.key)) appendToScreen(e.key);
+            if (e.key === 'Enter' || e.key === '=') calculate();
+            if (e.key === 'Backspace') deleteChar();
+            if (e.key === 'Escape') clearScreen();
+        });
+    </script>
+</body>
+</html>
